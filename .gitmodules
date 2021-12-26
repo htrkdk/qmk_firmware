@@ -18,3 +18,6 @@
 [submodule "lib/printf"]
 	path = lib/printf
 	url = https://github.com/qmk/printf
+[submodule "keyboards/choco60/keymaps/htrkdk_jis/a2j"]
+	path = keyboards/choco60/keymaps/htrkdk_jis/a2j
+	url = https://github.com/m47ch4n/qmk-translate-ansi-to-jis.git
