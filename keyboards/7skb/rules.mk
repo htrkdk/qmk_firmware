@@ -20,3 +20,4 @@ RGBLIGHT_ENABLE = yes       # Enable WS2812 RGB underlight.
 SPLIT_KEYBOARD = yes
 
 DEFAULT_FOLDER = 7skb/rev1
+SRC += keymaps/htrkdk/a2j/translate_ansi_to_jis.c
