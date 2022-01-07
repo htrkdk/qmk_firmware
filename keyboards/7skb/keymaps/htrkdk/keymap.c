@@ -76,7 +76,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
-// Configure US/ANSI mode function
+// Configure ANSI/JIS mode function
 user_config_t user_config;
 
 void init_user_config(void) {
