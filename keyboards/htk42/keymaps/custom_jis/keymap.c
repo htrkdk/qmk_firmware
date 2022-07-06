@@ -10,6 +10,7 @@ enum layer_names {
 };
 
 enum custom_keycodes {
+    RGB_RST = SAFE_RANGE,
     OUT_TOG
 };
 
