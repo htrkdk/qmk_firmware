@@ -198,17 +198,15 @@ bool is_jis_mode(void) {
   return user_config.is_jis_mode;
 }
 
-void set_jis_mode(bool is_jis_mode) {
-  user_config.is_jis_mode = is_jis_mode;
+void set_jis_mode(bool jis_mode) {
+  user_config.is_jis_mode = jis_mode;
   eeconfig_update_user(user_config.raw);
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (keycode == OUT_TOG) {
     if (record->event.pressed) {
-      // set_jis_mode
-      user_config.is_jis_mode = !is_jis_mode();
-      eeconfig_update_user(user_config.raw);
+      set_jis_mode(!is_jis_mode());
     }
     return false;
   } else {
