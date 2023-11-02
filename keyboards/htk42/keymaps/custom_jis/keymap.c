@@ -1,9 +1,11 @@
 #include QMK_KEYBOARD_H
+#include "os_detection.h"
 #include "a2j/translate_ansi_to_jis.h"
 
 // Defines names for use in layer keycodes and the keymap
 enum layer_names {
     _BASE = 0,
+    _MAC,
     _FN,
     _LOWER,
     _RAISE
@@ -29,6 +31,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  MO(_FN), \
         KC_LALT, LGUI_T(KC_INT5),  LT(_LOWER, KC_SPC),   KC_DEL,   LT(_RAISE, KC_SPC),   RGUI_T(KC_INT4),  KC_RSFT
     ),
+    [_MAC] = LAYOUT(
+        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS, \
+        KC_LCTL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_ENT,  KC_BSPC, \
+        KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  MO(_FN), \
+        KC_LALT, LGUI_T(KC_LNG2),  LT(_LOWER, KC_SPC),   KC_DEL,   LT(_RAISE, KC_SPC),   RGUI_T(KC_LNG1),  KC_RSFT
+    ),
     [_FN] = LAYOUT(
         KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   XXXXXXX, KC_PSCR, KC_SCRL, KC_PAUSE,KC_UP,   XXXXXXX, KC_BSPC, \
         _______, KC_F5,   KC_F6,   KC_F7,   KC_F8,   XXXXXXX, KC_HOME, KC_PGUP, KC_LEFT, KC_RIGHT,_______, _______, \
@@ -48,6 +56,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______,          _______,              _______,  _______,              _______,          _______
     )
 };
+
+// OS detection
+void keyboard_post_init_user(void) {
+    wait_ms(400);
+    switch (detected_host_os()) {
+        case OS_LINUX:
+        case OS_WINDOWS:
+            layer_move(_BASE);
+            break;
+        case OS_IOS:
+        case OS_MACOS:
+            layer_move(_MAC);
+            break;
+        default:
+            layer_move(_BASE);
+    }
+}
 
 // Configure ANSI/JIS mode function
 user_config_t user_config;
