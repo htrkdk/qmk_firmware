@@ -187,32 +187,20 @@ bool oled_task_user(void) {
 }
 #endif // OLED_ENABLE
 
-// OS detection
-void keyboard_post_init_user(void) {
-    wait_ms(400);
-    switch (detected_host_os()) {
-        case OS_LINUX:
-        case OS_WINDOWS:
-            layer_move(_QWERTY);
-            break;
-        case OS_IOS:
-        case OS_MACOS:
-            layer_move(_MAC);
-            break;
-        default:
-            layer_move(_QWERTY);
-    }
-}
-
 // Configure ANSI/JIS mode function
 user_config_t user_config;
 
 void init_user_config(void) {
-    user_config.raw = eeconfig_read_user();
+  user_config.raw = eeconfig_read_user();
 }
 
 bool is_jis_mode(void) {
-    return user_config.is_jis_mode;
+  return user_config.is_jis_mode;
+}
+
+void set_jis_mode(bool is_jis_mode) {
+  user_config.is_jis_mode = is_jis_mode;
+  eeconfig_update_user(user_config.raw);
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -238,3 +226,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   return process_record_user_a2j(keycode, record);
 }
+
+// OS detection
+void keyboard_post_init_user(void) {
+  wait_ms(400);
+  switch (detected_host_os()) {
+    case OS_LINUX:
+      layer_move(_QWERTY);
+      break;
+    case OS_WINDOWS:
+      layer_move(_QWERTY);
+      if (!user_config.is_jis_mode) {
+        set_jis_mode(true);
+      }
+      break;
+    case OS_IOS:
+    case OS_MACOS:
+      layer_move(_MAC);
+      break;
+    default:
+      layer_move(_QWERTY);
+  }
+}
+

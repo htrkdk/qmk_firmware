@@ -92,38 +92,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
-// OS detection
-void keyboard_post_init_user(void) {
-    wait_ms(400);
-    switch (detected_host_os()) {
-        case OS_LINUX:
-        case OS_WINDOWS:
-            layer_move(_QWERTY);
-            break;
-        case OS_IOS:
-        case OS_MACOS:
-            layer_move(_MAC);
-            break;
-        default:
-            layer_move(_QWERTY);
-    }
-}
-
 // Configure ANSI/JIS mode function
 user_config_t user_config;
 
 void init_user_config(void) {
-    user_config.raw = eeconfig_read_user();
+  user_config.raw = eeconfig_read_user();
 }
 
 bool is_jis_mode(void) {
-    return user_config.is_jis_mode;
+  return user_config.is_jis_mode;
+}
+
+void set_jis_mode(bool is_jis_mode) {
+  user_config.is_jis_mode = is_jis_mode;
+  eeconfig_update_user(user_config.raw);
 }
 
 //A description for expressing the layer position in LED mode.
 layer_state_t layer_state_set_user(layer_state_t state) {
 #ifdef RGBLIGHT_ENABLE
-    switch (get_highest_layer(state)) {
+  switch (get_highest_layer(state)) {
     case _FN:
       rgblight_sethsv_at(HSV_PURPLE, 0);
       break;
@@ -133,8 +121,8 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     default: //  for any other layers, or the default layer
       rgblight_sethsv_at( 0, 0, 0, 0);
       break;
-    }
-    rgblight_set_effect_range( 1, 4);
+  }
+  rgblight_set_effect_range( 1, 4);
 #endif
 return state;
 }
@@ -144,26 +132,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     #ifdef RGBLIGHT_ENABLE
       case RGB_MOD:
-          if (record->event.pressed) {
-            rgblight_mode(RGB_current_mode);
-            rgblight_step();
-            RGB_current_mode = rgblight_config.mode;
-          }
+        if (record->event.pressed) {
+          rgblight_mode(RGB_current_mode);
+          rgblight_step();
+          RGB_current_mode = rgblight_config.mode;
+        }
         return false;
       case RGB_RST:
-          if (record->event.pressed) {
-            eeconfig_update_rgblight_default();
-            rgblight_enable();
-            RGB_current_mode = rgblight_config.mode;
-          }
+        if (record->event.pressed) {
+          eeconfig_update_rgblight_default();
+          rgblight_enable();
+          RGB_current_mode = rgblight_config.mode;
+        }
         return false;
     #endif
       case OUT_TOG:
-          if (record->event.pressed) {
-            // set_jis_mode
-            user_config.is_jis_mode = !is_jis_mode();
-            eeconfig_update_user(user_config.raw);
-          }
+        if (record->event.pressed) {
+          // set_jis_mode
+          user_config.is_jis_mode = !is_jis_mode();
+          eeconfig_update_user(user_config.raw);
+        }
         return false;
   }
 
@@ -173,3 +161,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   return process_record_user_a2j(keycode, record);
 }
+
+// OS detection
+void keyboard_post_init_user(void) {
+  wait_ms(400);
+  switch (detected_host_os()) {
+    case OS_LINUX:
+      layer_move(_QWERTY);
+      break;
+    case OS_WINDOWS:
+      layer_move(_QWERTY);
+      if (!user_config.is_jis_mode) {
+        set_jis_mode(true);
+      }
+      break;
+    case OS_IOS:
+    case OS_MACOS:
+      layer_move(_MAC);
+      break;
+    default:
+      layer_move(_QWERTY);
+  }
+}
+
