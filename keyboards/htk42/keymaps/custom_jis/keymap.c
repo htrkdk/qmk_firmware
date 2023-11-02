@@ -57,23 +57,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-// OS detection
-void keyboard_post_init_user(void) {
-    wait_ms(400);
-    switch (detected_host_os()) {
-        case OS_LINUX:
-        case OS_WINDOWS:
-            layer_move(_BASE);
-            break;
-        case OS_IOS:
-        case OS_MACOS:
-            layer_move(_MAC);
-            break;
-        default:
-            layer_move(_BASE);
-    }
-}
-
 // Configure ANSI/JIS mode function
 user_config_t user_config;
 
@@ -85,19 +68,45 @@ bool is_jis_mode(void) {
     return user_config.is_jis_mode;
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (keycode == OUT_TOG) {
-    if (record->event.pressed) {
-      // set_jis_mode
-      user_config.is_jis_mode = !is_jis_mode();
-      eeconfig_update_user(user_config.raw);
-    }
-    return false;
-  }
-
-  if (!is_jis_mode()) {
-    return true;
-  }
-
-  return process_record_user_a2j(keycode, record);
+void set_jis_mode(bool jis_mode) {
+    user_config.is_jis_mode = jis_mode;
+    eeconfig_update_user(user_config.raw);
 }
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == OUT_TOG) {
+        if (record->event.pressed) {
+            set_jis_mode(!is_jis_mode());
+        }
+        return false;
+    }
+
+    if (!is_jis_mode()) {
+        return true;
+    }
+
+    return process_record_user_a2j(keycode, record);
+}
+
+// OS detection
+void keyboard_post_init_user(void) {
+    wait_ms(400);
+    switch (detected_host_os()) {
+        case OS_LINUX:
+            layer_move(_BASE);
+            break;
+        case OS_WINDOWS:
+            layer_move(_BASE);
+            if (!user_config.is_jis_mode) {
+                set_jis_mode(true);
+            }
+            break;
+        case OS_IOS:
+        case OS_MACOS:
+            layer_move(_MAC);
+            break;
+        default:
+            layer_move(_BASE);
+    }
+}
+
