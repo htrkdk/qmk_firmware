@@ -19,5 +19,7 @@ SRC +=  ./lib/rgb_state_reader.c \
         # ./lib/mode_icon_reader.c \
         # ./lib/host_led_state_reader.c \
 
+OS_DETECTION_ENABLE = yes
+
 # for ANSI/JIS modification
 SRC +=  ./keymaps/htrkdk/a2j/translate_ansi_to_jis.c
