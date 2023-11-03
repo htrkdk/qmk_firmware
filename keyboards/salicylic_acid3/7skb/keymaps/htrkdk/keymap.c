@@ -26,6 +26,8 @@ enum custom_keycodes {
   OUT_TOG
 };
 
+static os_variant_t detected_os = OS_UNSURE;
+
 typedef union {
   uint32_t raw;
   struct {
@@ -160,25 +162,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return process_record_user_a2j(keycode, record);
 }
 
-// OS detection
-void keyboard_post_init_user(void) {
-  wait_ms(400);
-  switch (detected_host_os()) {
-    case OS_LINUX:
-      layer_move(_QWERTY);
-      break;
-    case OS_WINDOWS:
-      layer_move(_QWERTY);
-      if (!user_config.is_jis_mode) {
-        set_jis_mode(true);
-      }
-      break;
-    case OS_IOS:
-    case OS_MACOS:
-      layer_move(_MAC);
-      break;
-    default:
-      layer_move(_QWERTY);
+void housekeeping_task_user(void) {
+  // OS detection
+  if (detected_os != detected_host_os()) {
+    detected_os = detected_host_os();
+
+    switch (detected_host_os()) {
+      case OS_IOS:
+      case OS_MACOS:
+        layer_move(_MAC);
+        break;
+      case OS_WINDOWS:
+        if (!user_config.is_jis_mode) {
+          set_jis_mode(true);
+        }
+        break;
+      default:
+        ;
+    }
   }
 }
 
