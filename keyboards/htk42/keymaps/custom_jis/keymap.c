@@ -2,6 +2,9 @@
 #include "os_detection.h"
 #include "a2j/translate_ansi_to_jis.h"
 
+#define OS_DETECTION_KEYBOARD_RESET
+#define OS_DETECTION_SINGLE_REPORT
+
 // Defines names for use in layer keycodes and the keymap
 enum layer_names {
     _BASE = 0,
